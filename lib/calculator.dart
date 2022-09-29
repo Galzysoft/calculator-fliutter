@@ -1,6 +1,9 @@
+import 'dart:ffi';
+
 import 'package:calculator/widgets/calcButton.dart';
 import 'package:calculator/widgets/display.dart';
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 class Calculator extends StatefulWidget {
   const Calculator({Key? key}) : super(key: key);
@@ -10,9 +13,12 @@ class Calculator extends StatefulWidget {
 }
 
 class _CalculatorState extends State<Calculator> {
-  String value = "";
+  String answer = "0";
+  String firstValue = "";
   String typedvalue = "";
   String operator = "";
+  bool isCliked = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +30,7 @@ class _CalculatorState extends State<Calculator> {
         Expanded(
           flex: 5,
           child: Display(
-            value: value,
+            value: answer,
             trypedvalue: typedvalue,
           ),
         ),
@@ -36,31 +42,39 @@ class _CalculatorState extends State<Calculator> {
                 child: CalcButton(
                   buttonOnClick: () {
                     setState(() {
-                      value = "0";
+                      answer = "0";
                       typedvalue = "";
+                      operator = "";
+
                     });
                   },
                   buttonBackgroundColor: Colors.black87,
                   buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: 'C',
                 ),
               ),
               Expanded(
                 child: CalcButton(
-                  buttonOnClick: () {operatorClick("/");},
+                  buttonOnClick: () {
+                    operatorClick("/");
+                  },
+                  isOperatorClicked: isCliked,
                   buttonBackgroundColor: Colors.black87,
                   // buttonRadius: BorderRadius.only(bottomLeft: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: '/',
                 ),
               ),
               Expanded(
                 child: CalcButton(
-                  buttonOnClick: () {operatorClick("X");},
+                  buttonOnClick: () {
+                    operatorClick("X");
+                  },
+                  isOperatorClicked: isCliked,
                   buttonBackgroundColor: Colors.black87,
                   // buttonRadius: BorderRadius.only(bottomLeft: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: 'X',
                 ),
               ),
@@ -68,13 +82,16 @@ class _CalculatorState extends State<Calculator> {
                 child: CalcButton(
                   buttonOnClick: () {
                     setState(() {
-                      typedvalue = typedvalue.substring(0, typedvalue.length-1);
-                    });
+                      typedvalue =
+                          typedvalue.substring(0, typedvalue.length - 1);
+
+                      });
+                    calculate2();
                   },
                   buttonBackgroundColor: Colors.black87,
                   buttonRadius:
                       BorderRadius.only(topRight: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: 'DEL',
                 ),
               ),
@@ -90,7 +107,7 @@ class _CalculatorState extends State<Calculator> {
                   buttonOnClick: () {
                     numberclick("7");
                   },
-                  buttonBackgroundColor: Colors.pink,
+                  buttonBackgroundColor: Colors.green,
                   // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                   buttonTextstyle:
                       TextStyle(color: Colors.black87, fontSize: 34),
@@ -102,7 +119,7 @@ class _CalculatorState extends State<Calculator> {
                   buttonOnClick: () {
                     numberclick("8");
                   },
-                  buttonBackgroundColor: Colors.pink,
+                  buttonBackgroundColor: Colors.green,
                   // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                   buttonTextstyle:
                       TextStyle(color: Colors.black87, fontSize: 34),
@@ -114,7 +131,7 @@ class _CalculatorState extends State<Calculator> {
                   buttonOnClick: () {
                     numberclick("9");
                   },
-                  buttonBackgroundColor: Colors.pink,
+                  buttonBackgroundColor: Colors.green,
                   // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                   buttonTextstyle:
                       TextStyle(color: Colors.black87, fontSize: 34),
@@ -123,10 +140,13 @@ class _CalculatorState extends State<Calculator> {
               ),
               Expanded(
                 child: CalcButton(
-                  buttonOnClick: () {operatorClick("-");},
+                  buttonOnClick: () {
+                    operatorClick("-");
+                  },
+                  isOperatorClicked: isCliked,
                   buttonBackgroundColor: Colors.black87,
                   // buttonRadius: BorderRadius.only(topRight: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: '-',
                 ),
               ),
@@ -142,7 +162,7 @@ class _CalculatorState extends State<Calculator> {
                   buttonOnClick: () {
                     numberclick("4");
                   },
-                  buttonBackgroundColor: Colors.pink,
+                  buttonBackgroundColor: Colors.green,
                   // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                   buttonTextstyle:
                       TextStyle(color: Colors.black87, fontSize: 34),
@@ -154,7 +174,7 @@ class _CalculatorState extends State<Calculator> {
                   buttonOnClick: () {
                     numberclick("5");
                   },
-                  buttonBackgroundColor: Colors.pink,
+                  buttonBackgroundColor: Colors.green,
                   // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                   buttonTextstyle:
                       TextStyle(color: Colors.black87, fontSize: 34),
@@ -166,7 +186,7 @@ class _CalculatorState extends State<Calculator> {
                   buttonOnClick: () {
                     numberclick("6");
                   },
-                  buttonBackgroundColor: Colors.pink,
+                  buttonBackgroundColor: Colors.green,
                   // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                   buttonTextstyle:
                       TextStyle(color: Colors.black87, fontSize: 34),
@@ -175,10 +195,13 @@ class _CalculatorState extends State<Calculator> {
               ),
               Expanded(
                 child: CalcButton(
-                  buttonOnClick: () {},
+                  buttonOnClick: () {
+                    operatorClick("+");
+                  },
+                  isOperatorClicked: isCliked,
                   buttonBackgroundColor: Colors.black87,
                   // buttonRadius: BorderRadius.only(topRight: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: '+',
                 ),
               ),
@@ -201,7 +224,7 @@ class _CalculatorState extends State<Calculator> {
                               buttonOnClick: () {
                                 numberclick("1");
                               },
-                              buttonBackgroundColor: Colors.pink,
+                              buttonBackgroundColor: Colors.green,
                               // buttonRadius: BorderRadius.only(bottomLeft: Radius.circular(20)),
                               buttonTextstyle: TextStyle(
                                   color: Colors.black87, fontSize: 34),
@@ -213,7 +236,7 @@ class _CalculatorState extends State<Calculator> {
                               buttonOnClick: () {
                                 numberclick("2");
                               },
-                              buttonBackgroundColor: Colors.pink,
+                              buttonBackgroundColor: Colors.green,
                               // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                               buttonTextstyle: TextStyle(
                                   color: Colors.black87, fontSize: 34),
@@ -225,7 +248,7 @@ class _CalculatorState extends State<Calculator> {
                               buttonOnClick: () {
                                 numberclick("3");
                               },
-                              buttonBackgroundColor: Colors.pink,
+                              buttonBackgroundColor: Colors.green,
                               // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                               buttonTextstyle: TextStyle(
                                   color: Colors.black87, fontSize: 34),
@@ -240,8 +263,11 @@ class _CalculatorState extends State<Calculator> {
                         children: [
                           Expanded(
                             child: CalcButton(
-                              buttonOnClick: () {operatorClick("%");},
-                              buttonBackgroundColor: Colors.pink,
+                              buttonOnClick: () {
+                                operatorClick("%");
+                              },
+                              isOperatorClicked: isCliked,
+                              buttonBackgroundColor: Colors.green,
                               buttonRadius: BorderRadius.only(
                                   bottomLeft: Radius.circular(20)),
                               buttonTextstyle: TextStyle(
@@ -254,7 +280,7 @@ class _CalculatorState extends State<Calculator> {
                               buttonOnClick: () {
                                 numberclick("0");
                               },
-                              buttonBackgroundColor: Colors.pink,
+                              buttonBackgroundColor: Colors.green,
                               // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                               buttonTextstyle: TextStyle(
                                   color: Colors.black87, fontSize: 34),
@@ -270,7 +296,7 @@ class _CalculatorState extends State<Calculator> {
                                   print("yolunhave clicked  dot before");
                                 }
                               },
-                              buttonBackgroundColor: Colors.pink,
+                              buttonBackgroundColor: Colors.green,
                               // buttonRadius: BorderRadius.only(topLeft: Radius.circular(20)),
                               buttonTextstyle: TextStyle(
                                   color: Colors.black87, fontSize: 34),
@@ -286,11 +312,11 @@ class _CalculatorState extends State<Calculator> {
               Expanded(
                 flex: 1,
                 child: CalcButton(
-                  buttonOnClick: () {},
+                  buttonOnClick: () {   calculate2();},
                   buttonBackgroundColor: Colors.black87,
                   buttonRadius:
                       BorderRadius.only(bottomRight: Radius.circular(20)),
-                  buttonTextstyle: TextStyle(color: Colors.pink, fontSize: 34),
+                  buttonTextstyle: TextStyle(color: Colors.green, fontSize: 34),
                   buttonText: '=',
                 ),
               ),
@@ -301,18 +327,79 @@ class _CalculatorState extends State<Calculator> {
     );
   }
 
-  void operatorClick(String _operator){
-    if(!typedvalue.endsWith(" $_operator ")) {
-      setState(() {
-        operator = _operator;
-        typedvalue = typedvalue + " $_operator ";
-      });
-    }
+  void operatorClick(String _operator) {
+    setState(() {
+      operator = _operator;
+      typedvalue = typedvalue + "$_operator";
+      isCliked = true;
+    });
   }
 
   void numberclick(String num) {
     setState(() {
-      typedvalue = typedvalue +num;
+      typedvalue = typedvalue + num;
+
+      // calculate(firstValue:answer=="0"?num:answer, OOperator: operator, CurentValue: num);
+ calculate2();
+      isCliked = false;
     });
+  }
+
+  void calculate2(){ Parser p = Parser();
+  String finaluserinput = typedvalue.replaceAll('X', '*');
+
+
+  Expression exp = p.parse(finaluserinput.trim());
+  ContextModel cm = ContextModel();
+  double eval = exp.evaluate(EvaluationType.REAL, cm);
+
+  setState(() {
+    answer = eval.toString();
+  });
+  }
+  void calculate(
+      {required String firstValue,
+      required String OOperator,
+      required String CurentValue}) {
+    /// convertion of string to double
+    double value1= double.parse(firstValue);
+
+    double value2= double.parse(CurentValue);
+    double result=0;
+    if(OOperator=="/")
+    {
+      result= value1/value2;
+      setState((){answer=result.toString();});
+      ///convertipon of double to string
+    }
+    else if(OOperator=="X")
+    {
+      result= value1*value2;
+      setState((){answer=result.toString();});
+      ///convertipon of double to string
+    }
+    else if(OOperator=="-")
+    {
+      result= value1-value2;
+      setState((){answer=result.toString();});
+      ///convertipon of double to string
+    }
+    else if(OOperator=="+")
+    {
+      result= value1+value2;
+      setState((){answer=result.toString();});
+      ///convertipon of double to string
+    }
+    else if(OOperator=="%")
+    {
+      result= value1%value2;
+      setState((){answer=result.toString();});
+      ///convertipon of double to string
+    }
+
+    else{
+
+      print ("no operator is selected");
+    }
   }
 }
